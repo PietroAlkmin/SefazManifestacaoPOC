@@ -63,8 +63,8 @@ public class SefazEventoClient
         httpClient.DefaultRequestHeaders.Add("SOAPAction", "http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento4/nfeRecepcaoEventoNF");
 
         var response = await httpClient.PostAsync(url, content);
-        response.EnsureSuccessStatusCode();
-
+        
+        // Não validar status code - SEFAZ pode retornar 500 com XML válido contendo erro
         var responseContent = await response.Content.ReadAsStringAsync();
 
         // Extrair XML da resposta SOAP
