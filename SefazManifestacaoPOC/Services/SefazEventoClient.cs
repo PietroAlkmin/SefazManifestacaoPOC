@@ -59,8 +59,8 @@ public class SefazEventoClient
             CharSet = "utf-8"
         };
 
-        // SOAPAction vazio para NFeRecepcaoEvento4 (alguns serviços não requerem)
-        content.Headers.Add("SOAPAction", "\"\"");
+        // SOAPAction correto para NFeRecepcaoEvento4 (baseado no WSDL oficial)
+        content.Headers.Add("SOAPAction", "\"http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento4/nfeRecepcaoEvento\"");
 
         var response = await httpClient.PostAsync(url, content);
         
