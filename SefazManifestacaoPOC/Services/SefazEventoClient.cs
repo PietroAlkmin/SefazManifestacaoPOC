@@ -82,7 +82,7 @@ public class SefazEventoClient
     private string CriarEnvelopeSOAP(string xmlBody)
     {
         return $@"<?xml version=""1.0"" encoding=""utf-8""?>
-<soap:Envelope xmlns:soap=""http://www.w3.org/2003/05/soap-envelope"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+<soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
     <soap:Body>
         <nfeDadosMsg xmlns=""http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento4"">
             {xmlBody}
@@ -96,7 +96,7 @@ public class SefazEventoClient
         try
         {
             var doc = XDocument.Parse(soapResponse);
-            XNamespace soapNs = "http://www.w3.org/2003/05/soap-envelope";
+            XNamespace soapNs = "http://schemas.xmlsoap.org/soap/envelope/";
             XNamespace nfeNs = "http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento4";
 
             var bodyElement = doc.Descendants(soapNs + "Body").FirstOrDefault();
