@@ -43,8 +43,8 @@ public class XmlSignatureService
         if (elementoAssinado == null)
             throw new InvalidOperationException($"Elemento com Id '{elementoId}' não encontrado");
 
-        // Criar SignedXml
-        var signedXml = new SignedXml(elementoAssinado)
+        // Criar SignedXml com contexto do documento (não do elemento)
+        var signedXml = new SignedXml(xmlDocument)
         {
             SigningKey = certificado.GetRSAPrivateKey() ?? throw new InvalidOperationException("Não foi possível obter chave RSA")
         };
