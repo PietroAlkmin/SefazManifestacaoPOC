@@ -28,6 +28,9 @@ public class XmlEventoBuilder
         // Formato de data SEFAZ: yyyy-MM-ddTHH:mm:ss-03:00 (ISO 8601 com timezone)
         var dhEvento = DateTimeOffset.Now.ToString("yyyy-MM-ddTHH:mm:ssK");
         var idEvento = $"ID210210{chaveNFe}01";
+        
+        // Extrair cUF dos 2 primeiros dígitos da chave (ex: 31 = MG)
+        var cOrgao = chaveNFe.Substring(0, 2);
 
         XNamespace ns = NamespaceNFe;
 
@@ -40,7 +43,7 @@ public class XmlEventoBuilder
                     new XAttribute("versao", "1.00"),
                     new XElement(ns + "infEvento",
                         new XAttribute("Id", idEvento),
-                        new XElement(ns + "cOrgao", "91"), // Órgão 91 = Ambiente Nacional
+                        new XElement(ns + "cOrgao", cOrgao), // cUF do emitente (extraído da chave)
                         new XElement(ns + "tpAmb", tpAmb),
                         new XElement(ns + "CNPJ", cnpjDestinatario),
                         new XElement(ns + "chNFe", chaveNFe),
