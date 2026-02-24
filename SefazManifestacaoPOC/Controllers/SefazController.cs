@@ -80,6 +80,7 @@ public class SefazController : ControllerBase
             var xmlAssinado = _signatureService.AssinarXml(xmlEvento, certificado, idEvento);
 
             _logger.LogInformation("XML assinado com sucesso");
+            _logger.LogInformation("XML ASSINADO COMPLETO: {XmlAssinado}", xmlAssinado.ToString());
 
             // 5. Enviar para SEFAZ
             _logger.LogInformation("Enviando para SEFAZ...");

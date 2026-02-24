@@ -25,7 +25,8 @@ public class XmlEventoBuilder
             throw new ArgumentException("CNPJ deve ter 14 dígitos", nameof(cnpjDestinatario));
 
         var tpAmb = isProducao ? 1 : 2; // 1=Produção, 2=Homologação
-        var dhEvento = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:sszzz");
+        // Formato de data SEFAZ: yyyy-MM-ddTHH:mm:ss-03:00 (ISO 8601 com timezone)
+        var dhEvento = DateTimeOffset.Now.ToString("yyyy-MM-ddTHH:mm:ssK");
         var idEvento = $"ID210210{chaveNFe}01";
 
         XNamespace ns = NamespaceNFe;
