@@ -40,7 +40,12 @@ public class SefazEventoClient
     public async Task<string> EnviarEventoAsync(XDocument xmlEvento, X509Certificate2 certificado, string uf = "DEFAULT")
     {
         var url = ObterUrlServico(uf);
-        var xmlString = xmlEvento.ToString(SaveOptions.DisableFormatting);
+        // Remover declaração XML (<?xml...?>) pois vai dentro do SOAP
+        var xmlString = xmlEvento.ToString(SaveOptions.DisableFormatting | SaveOptions.OmitDuplicateNamespaces);
+        if (xmlString.StartsWith("<?xml"))
+        {
+            xmlString = xmlString.Substring(xmlString.IndexOf("?>") + 2).TrimStart();
+        }
 
         // Criar envelope SOAP
         var soapEnvelope = CriarEnvelopeSOAP(xmlString);
