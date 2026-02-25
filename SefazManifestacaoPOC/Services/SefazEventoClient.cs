@@ -50,8 +50,8 @@ public class SefazEventoClient
             xmlString = xmlString.Substring(xmlString.IndexOf("?>") + 2).TrimStart();
         }
 
-        // Criar envelope SOAP
-        var soapEnvelope = CriarEnvelopeSOAP(xmlString);
+        // Criar envelope SOAP (MG usa formato simplificado para Apache Axis)
+        var soapEnvelope = CriarEnvelopeSOAP(xmlString, uf);
 
         // Configurar HttpClient com certificado
         var handler = new HttpClientHandler();
@@ -62,10 +62,16 @@ public class SefazEventoClient
         httpClient.Timeout = TimeSpan.FromSeconds(60);
 
         var content = new StringContent(soapEnvelope, Encoding.UTF8, "text/xml");
-        content.Headers.ContentType = new MediaTypeHeaderValue("text/xml")
+        
+        // MG (Apache Axis) prefere Content-Type sem charset
+        if (uf.ToUpper() == "MG")
         {
-            CharSet = "utf-8"
-        };
+            content.Headers.ContentType = new MediaTypeHeaderValue("text/xml");
+        }
+        else
+        {
+            content.Headers.ContentType = new MediaTypeHeaderValue("text/xml") { CharSet = "utf-8" };
+        }
         
         // MG (Apache Axis) não exige/aceita SOAPAction no header
         if (uf.ToUpper() != "MG")
@@ -96,8 +102,22 @@ public class SefazEventoClient
         return UrlsHomologacao["DEFAULT"];
     }
 
-    private string CriarEnvelopeSOAP(string xmlBody)
+    private string CriarEnvelopeSOAP(string xmlBody, string uf)
     {
+        // Apache Axis (MG) prefere SOAP mais simples, sem wrapper nfeDadosMsg
+        if (uf.ToUpper() == "MG")
+        {
+            return $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+    <soap:Body>
+        <nfeRecepcaoEvento xmlns=""http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento"">
+            {xmlBody}
+        </nfeRecepcaoEvento>
+    </soap:Body>
+</soap:Envelope>";
+        }
+        
+        // Formato padrão para outros estados (IIS)
         return $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
     <soap:Body>
