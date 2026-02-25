@@ -19,7 +19,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<XmlEventoBuilder>();
 builder.Services.AddSingleton<XmlSignatureService>();
-builder.Services.AddScoped<SefazEventoClient>();
+builder.Services.AddScoped<SefazEventoClient>(); // Manual SOAP (antigo)
+builder.Services.AddScoped<SefazEventoClientWcf>(); // WCF (novo)
 
 var app = builder.Build();
 

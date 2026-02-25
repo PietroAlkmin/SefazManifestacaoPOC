@@ -11,18 +11,21 @@ public class SefazController : ControllerBase
 {
     private readonly XmlEventoBuilder _xmlBuilder;
     private readonly XmlSignatureService _signatureService;
-    private readonly SefazEventoClient _eventoClient;
+    private readonly SefazEventoClient _eventoClient; // Manual SOAP (antigo)
+    private readonly SefazEventoClientWcf _eventoClientWcf; // WCF (novo)
     private readonly ILogger<SefazController> _logger;
 
     public SefazController(
         XmlEventoBuilder xmlBuilder,
         XmlSignatureService signatureService,
         SefazEventoClient eventoClient,
+        SefazEventoClientWcf eventoClientWcf,
         ILogger<SefazController> logger)
     {
         _xmlBuilder = xmlBuilder;
         _signatureService = signatureService;
         _eventoClient = eventoClient;
+        _eventoClientWcf = eventoClientWcf;
         _logger = logger;
     }
 
@@ -196,5 +199,104 @@ public class SefazController : ControllerBase
             timestamp = DateTime.UtcNow,
             message = "SEFAZ Manifestação POC está rodando"
         });
+    }
+
+    /// <summary>
+    /// Manifesta ciência usando WCF (System.ServiceModel) - NOVA IMPLEMENTAÇÃO
+    /// </summary>
+    /// <param name="request">Dados para manifestação</param>
+    /// <returns>Resultado da manifestação com resposta da SEFAZ</returns>
+    [HttpPost("manifestar-ciencia-wcf")]
+    [ProducesResponseType(typeof(ManifestacaoResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ManifestacaoResponse>> ManifestarCienciaWcf([FromBody] ManifestacaoRequest request)
+    {
+        try
+        {
+            _logger.LogInformation("[WCF] Iniciando manifestação de ciência para chNFe: {ChaveNFe}", request.ChaveNFe);
+
+            // 1. Validar entrada
+            if (string.IsNullOrWhiteSpace(request.ChaveNFe) || request.ChaveNFe.Length != 44)
+            {
+                return BadRequest(new ManifestacaoResponse
+                {
+                    Success = false,
+                    Erro = "ChaveNFe deve ter 44 dígitos"
+                });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.CnpjDestinatario) || request.CnpjDestinatario.Length != 14)
+            {
+                return BadRequest(new ManifestacaoResponse
+                {
+                    Success = false,
+                    Erro = "CNPJ deve ter 14 dígitos (somente números)"
+                });
+            }
+
+            // 2. Carregar certificado
+            _logger.LogInformation("[WCF] Carregando certificado digital...");
+            var certificado = _signatureService.CarregarCertificado(request.CertificadoPath, request.CertificadoSenha);
+
+            // 3. Construir XML do evento
+            _logger.LogInformation("[WCF] Construindo XML do evento de ciência...");
+            var xmlEvento = _xmlBuilder.ConstruirEventoCiencia(
+                request.ChaveNFe,
+                request.CnpjDestinatario,
+                isProducao: false // Homologação
+            );
+
+            _logger.LogInformation("[WCF] XML construído: {Xml}", xmlEvento.ToString());
+
+            // 4. Assinar XML
+            _logger.LogInformation("[WCF] Assinando XML digitalmente...");
+            var idEvento = $"ID210210{request.ChaveNFe}01";
+            var xmlAssinado = _signatureService.AssinarXml(xmlEvento, certificado, idEvento);
+
+            _logger.LogInformation("[WCF] XML assinado com sucesso");
+            _logger.LogInformation("[WCF] XML ASSINADO COMPLETO: {XmlAssinado}", xmlAssinado.ToString());
+
+            // 5. Enviar para SEFAZ via WCF
+            _logger.LogInformation("[WCF] Enviando para SEFAZ via WCF (System.ServiceModel)...");
+            var uf = XmlEventoBuilder.ExtrairUF(request.ChaveNFe);
+            _logger.LogInformation("[WCF] UF extraída da chave: {UF}", uf);
+            var xmlResposta = await _eventoClientWcf.EnviarEventoAsync(xmlAssinado, certificado, uf);
+
+            _logger.LogInformation("[WCF] Resposta recebida da SEFAZ: {Resposta}", xmlResposta);
+
+            // 6. Processar resposta
+            var response = ProcessarRespostaSefaz(xmlResposta);
+
+            if (response.Success)
+            {
+                _logger.LogInformation("[WCF] Manifestação registrada com sucesso! Protocolo: {Protocolo}", response.Protocolo);
+            }
+            else
+            {
+                _logger.LogWarning("[WCF] Manifestação rejeitada. cStat: {CStat}, Motivo: {Motivo}", response.CStat, response.XMotivo);
+            }
+
+            return Ok(response);
+        }
+        catch (FileNotFoundException ex)
+        {
+            _logger.LogError(ex, "[WCF] Arquivo de certificado não encontrado");
+            return NotFound(new ManifestacaoResponse
+            {
+                Success = false,
+                Erro = $"Certificado não encontrado: {ex.Message}"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[WCF] Erro ao manifestar ciência");
+            return StatusCode(500, new ManifestacaoResponse
+            {
+                Success = false,
+                Erro = $"Erro interno: {ex.Message}",
+                XmlRetorno = ex.ToString() // Stack trace para debug
+            });
+        }
     }
 }
