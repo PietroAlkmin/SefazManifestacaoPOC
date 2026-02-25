@@ -53,7 +53,7 @@ public class XmlEventoBuilder
                         new XElement(ns + "verEvento", "1.00"),
                         new XElement(ns + "detEvento",
                             new XAttribute("versao", "1.00"),
-                            new XElement(ns + "descEvento", "Confirmacao da Operacao")
+                            new XElement(ns + "descEvento", "Confirmação da Operação")
                         )
                     )
                 )

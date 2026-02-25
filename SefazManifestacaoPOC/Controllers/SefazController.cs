@@ -127,6 +127,17 @@ public class SefazController : ControllerBase
 
     private ManifestacaoResponse ProcessarRespostaSefaz(string xmlResposta)
     {
+        // Verificar se recebeu HTML 404 ao invés de XML
+        if (xmlResposta.Contains("404") || xmlResposta.Contains("Not Found") || xmlResposta.Contains("<html"))
+        {
+            return new ManifestacaoResponse
+            {
+                Success = false,
+                Erro = "WebService não encontrado (404). Verifique URL no SefazEventoClient.UrlsHomologacao",
+                XmlRetorno = xmlResposta
+            };
+        }
+
         try
         {
             var doc = XDocument.Parse(xmlResposta);
