@@ -2,6 +2,7 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Xml.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace SefazManifestacaoPOC.Services;
 
@@ -11,6 +12,7 @@ namespace SefazManifestacaoPOC.Services;
 public class SefazEventoClient
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ILogger<SefazEventoClient> _logger;
 
     // URLs dos serviços de homologação por UF
     private static readonly Dictionary<string, string> UrlsHomologacao = new()
@@ -25,9 +27,10 @@ public class SefazEventoClient
         ["SP"] = "https://homologacao.nfe.fazenda.sp.gov.br/ws/nferecepcaoevento4.asmx"
     };
 
-    public SefazEventoClient(IHttpClientFactory httpClientFactory)
+    public SefazEventoClient(IHttpClientFactory httpClientFactory, ILogger<SefazEventoClient> logger)
     {
         _httpClientFactory = httpClientFactory;
+        _logger = logger;
     }
 
     /// <summary>
@@ -69,8 +72,13 @@ public class SefazEventoClient
 
         var response = await httpClient.PostAsync(url, content);
         
+        _logger.LogInformation("Status HTTP recebido: {StatusCode}", response.StatusCode);
+        
         // Não validar status code - SEFAZ pode retornar 500 com XML válido contendo erro
         var responseContent = await response.Content.ReadAsStringAsync();
+        
+        _logger.LogInformation("Tamanho da resposta SOAP: {Length} bytes", responseContent?.Length ?? 0);
+        _logger.LogInformation("Resposta SOAP completa: {Response}", responseContent);
 
         // Extrair XML da resposta SOAP
         return ExtrairXmlRespostaSOAP(responseContent);
@@ -98,6 +106,12 @@ public class SefazEventoClient
 
     private string ExtrairXmlRespostaSOAP(string soapResponse)
     {
+        if (string.IsNullOrWhiteSpace(soapResponse))
+        {
+            _logger.LogWarning("Resposta SOAP vazia ou nula");
+            return "<erro>Resposta vazia da SEFAZ</erro>";
+        }
+
         try
         {
             var doc = XDocument.Parse(soapResponse);
@@ -110,15 +124,19 @@ public class SefazEventoClient
                 var resultElement = bodyElement.Descendants(nfeNs + "nfeResultMsg").FirstOrDefault();
                 if (resultElement != null)
                 {
-                    return resultElement.FirstNode?.ToString() ?? soapResponse;
+                    var xmlExtraido = resultElement.FirstNode?.ToString() ?? soapResponse;
+                    _logger.LogInformation("XML extraído do SOAP com sucesso");
+                    return xmlExtraido;
                 }
             }
 
+            _logger.LogWarning("Não encontrou nfeResultMsg no SOAP, retornando resposta completa");
             // Se não encontrou, retorna a resposta completa
             return soapResponse;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Erro ao parsear resposta SOAP");
             return soapResponse;
         }
     }
