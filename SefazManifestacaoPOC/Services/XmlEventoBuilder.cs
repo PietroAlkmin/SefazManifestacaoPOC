@@ -29,8 +29,9 @@ public class XmlEventoBuilder
         var dhEvento = DateTimeOffset.Now.ToString("yyyy-MM-ddTHH:mm:ssK");
         var idEvento = $"ID210210{chaveNFe}01";
         
-        // Extrair cUF dos 2 primeiros dígitos da chave (ex: 31 = MG)
-        var cOrgao = chaveNFe.Substring(0, 2);
+        // ✅ cOrgao=91 = Ambiente Nacional (SVRS) - aceita eventos de qualquer UF
+        // Igual ACBr Delphi - WCF interoperável com ASMX (não JAX-WS)
+        var cOrgao = "91";
 
         XNamespace ns = NamespaceNFe;
 

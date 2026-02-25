@@ -17,10 +17,15 @@ public class SefazEventoClientWcf
 
     private static readonly Dictionary<string, string> UrlsHomologacao = new()
     {
+        // ✅ SVRS Ambiente Nacional (cOrgao=91) - DEFAULT para todas UFs
+        // WCF interoperável com ASMX (.NET), evita problemas com JAX-WS (Java)
         ["DEFAULT"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
         ["SVRS"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["91"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx", // Ambiente Nacional
+        
+        // Endpoints específicos por UF (mantidos para referência, mas não usados com cOrgao=91)
         ["RS"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
-        ["MG"] = "https://hnfe.fazenda.mg.gov.br/nfe2/services/NFeRecepcaoEvento4",
+        ["MG"] = "https://hnfe.fazenda.mg.gov.br/nfe2/services/NFeRecepcaoEvento4", // JAX-WS - WCF incompatível
         ["SP"] = "https://homologacao.nfe.fazenda.sp.gov.br/ws/nferecepcaoevento4.asmx",
         ["BA"] = "https://hnfe.sefaz.ba.gov.br/webservices/NFeRecepcaoEvento4/NFeRecepcaoEvento4.asmx",
         ["PR"] = "https://homologacao.nfe.sefa.pr.gov.br/nfe/NFeRecepcaoEvento4",
