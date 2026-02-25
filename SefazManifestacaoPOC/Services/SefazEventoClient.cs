@@ -52,6 +52,8 @@ public class SefazEventoClient
 
         // Criar envelope SOAP (MG usa formato simplificado para Apache Axis)
         var soapEnvelope = CriarEnvelopeSOAP(xmlString, uf);
+        
+        _logger.LogInformation("SOAP Envelope enviado para {UF}: {Envelope}", uf, soapEnvelope.Length > 2000 ? soapEnvelope.Substring(0, 2000) + "..." : soapEnvelope);
 
         // Configurar HttpClient com certificado
         var handler = new HttpClientHandler();
@@ -104,15 +106,13 @@ public class SefazEventoClient
 
     private string CriarEnvelopeSOAP(string xmlBody, string uf)
     {
-        // Apache Axis (MG) prefere SOAP mais simples, sem wrapper nfeDadosMsg
+        // Apache Axis (MG) - sem wrapper, envEvento direto no Body
         if (uf.ToUpper() == "MG")
         {
             return $@"<?xml version=""1.0"" encoding=""utf-8""?>
-<soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+<soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">
     <soap:Body>
-        <nfeRecepcaoEvento xmlns=""http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento"">
-            {xmlBody}
-        </nfeRecepcaoEvento>
+        {xmlBody}
     </soap:Body>
 </soap:Envelope>";
         }
