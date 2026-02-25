@@ -54,7 +54,8 @@ public class XmlEventoBuilder
                         new XElement(ns + "verEvento", "1.00"),
                         new XElement(ns + "detEvento",
                             new XAttribute("versao", "1.00"),
-                            new XElement(ns + "descEvento", "Confirmação da Operação")
+                            // descEvento SEM namespace (xmlns="") conforme schema NFe
+                            new XElement("descEvento", "Confirmação da Operação")
                         )
                     )
                 )

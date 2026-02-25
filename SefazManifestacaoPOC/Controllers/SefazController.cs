@@ -146,6 +146,25 @@ public class SefazController : ControllerBase
             var doc = XDocument.Parse(xmlResposta);
             XNamespace ns = "http://www.portalfiscal.inf.br/nfe";
 
+            // Verifica se é erro de lote (retEnvEvento) ou sucesso individual (retEvento)
+            var retEnvEvento = doc.Descendants(ns + "retEnvEvento").FirstOrDefault();
+            if (retEnvEvento != null)
+            {
+                // Erro no lote - não processou eventos individuais
+                var cStat = retEnvEvento.Element(ns + "cStat")?.Value;
+                var xMotivo = retEnvEvento.Element(ns + "xMotivo")?.Value;
+                
+                return new ManifestacaoResponse
+                {
+                    Success = false,
+                    CStat = cStat,
+                    XMotivo = xMotivo,
+                    XmlRetorno = xmlResposta,
+                    Erro = $"Erro no lote (cStat={cStat}): {xMotivo}"
+                };
+            }
+
+            // Sucesso - processar retEvento individual
             var retEvento = doc.Descendants(ns + "retEvento").FirstOrDefault();
             if (retEvento == null)
             {
