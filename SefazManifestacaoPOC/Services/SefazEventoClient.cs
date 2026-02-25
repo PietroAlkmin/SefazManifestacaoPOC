@@ -66,9 +66,13 @@ public class SefazEventoClient
         {
             CharSet = "utf-8"
         };
-
-        // SOAPAction correto para NFeRecepcaoEvento (baseado no WSDL oficial)
-        content.Headers.Add("SOAPAction", "\"http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento/nfeRecepcaoEvento\"");
+        
+        // MG (Apache Axis) não exige/aceita SOAPAction no header
+        if (uf.ToUpper() != "MG")
+        {
+            // SOAPAction correto para NFeRecepcaoEvento (baseado no WSDL oficial)
+            content.Headers.Add("SOAPAction", "\"http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento/nfeRecepcaoEvento\"");
+        }
 
         var response = await httpClient.PostAsync(url, content);
         
