@@ -15,23 +15,23 @@ public class SefazEventoClientWcf
 {
     private readonly ILogger<SefazEventoClientWcf> _logger;
 
-    private static readonly Dictionary<string, string> UrlsHomologacao = new()
+    private static readonly Dictionary<string, string> UrlsProducao = new()
     {
-        // ✅ SVRS Ambiente Nacional (cOrgao=91) - DEFAULT para todas UFs
+        // ✅ SVRS Ambiente Nacional (cOrgao=91) - DEFAULT para todas UFs - PRODUÇÃO
         // WCF interoperável com ASMX (.NET), evita problemas com JAX-WS (Java)
-        ["DEFAULT"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
-        ["SVRS"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
-        ["91"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx", // Ambiente Nacional
+        ["DEFAULT"] = "https://nfe.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["SVRS"] = "https://nfe.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["91"] = "https://nfe.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx", // Ambiente Nacional
         
-        // Endpoints específicos por UF (mantidos para referência, mas não usados com cOrgao=91)
-        ["RS"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
-        ["MG"] = "https://hnfe.fazenda.mg.gov.br/nfe2/services/NFeRecepcaoEvento4", // JAX-WS - WCF incompatível
-        ["SP"] = "https://homologacao.nfe.fazenda.sp.gov.br/ws/nferecepcaoevento4.asmx",
-        ["BA"] = "https://hnfe.sefaz.ba.gov.br/webservices/NFeRecepcaoEvento4/NFeRecepcaoEvento4.asmx",
-        ["PR"] = "https://homologacao.nfe.sefa.pr.gov.br/nfe/NFeRecepcaoEvento4",
-        ["GO"] = "https://homolog.sefaz.go.gov.br/nfe/services/NFeRecepcaoEvento4",
-        ["AM"] = "https://homnfe.sefaz.am.gov.br/services2/services/RecepcaoEvento4",
-        ["MT"] = "https://homologacao.sefaz.mt.gov.br/nfews/v2/services/RecepcaoEvento4"
+        // Endpoints específicos por UF - PRODUÇÃO
+        ["RS"] = "https://nfe.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["MG"] = "https://nfe.fazenda.mg.gov.br/nfe2/services/NFeRecepcaoEvento4", // JAX-WS - WCF incompatível
+        ["SP"] = "https://nfe.fazenda.sp.gov.br/ws/nferecepcaoevento4.asmx",
+        ["BA"] = "https://nfe.sefaz.ba.gov.br/webservices/NFeRecepcaoEvento4/NFeRecepcaoEvento4.asmx",
+        ["PR"] = "https://nfe.sefa.pr.gov.br/nfe/NFeRecepcaoEvento4",
+        ["GO"] = "https://nfe.sefaz.go.gov.br/nfe/services/NFeRecepcaoEvento4",
+        ["AM"] = "https://nfe.sefaz.am.gov.br/services2/services/RecepcaoEvento4",
+        ["MT"] = "https://nfe.sefaz.mt.gov.br/nfews/v2/services/RecepcaoEvento4"
     };
 
     public SefazEventoClientWcf(ILogger<SefazEventoClientWcf> logger)
@@ -91,10 +91,10 @@ public class SefazEventoClientWcf
 
     private string ObterUrlServico(string uf)
     {
-        if (UrlsHomologacao.TryGetValue(uf.ToUpper(), out var url))
+        if (UrlsProducao.TryGetValue(uf.ToUpper(), out var url))
             return url;
 
-        return UrlsHomologacao["DEFAULT"];
+        return UrlsProducao["DEFAULT"];
     }
 
     private void ConfigureClient(ClientBase<INFeRecepcaoEvento4Soap> client, X509Certificate2 certificate)

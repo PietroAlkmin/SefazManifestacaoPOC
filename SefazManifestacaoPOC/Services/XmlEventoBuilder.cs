@@ -55,7 +55,7 @@ public class XmlEventoBuilder
                         new XElement(ns + "detEvento",
                             new XAttribute("versao", "1.00"),
                             // descEvento COM namespace para evitar xmlns="" espúrio
-                            new XElement(ns + "descEvento", "Ciência da Operação")
+                            new XElement(ns + "descEvento", "Ciencia da Operacao")
                         )
                     )
                 )

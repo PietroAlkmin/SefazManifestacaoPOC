@@ -263,7 +263,7 @@ public class SefazController : ControllerBase
             var xmlEvento = _xmlBuilder.ConstruirEventoCiencia(
                 request.ChaveNFe,
                 request.CnpjDestinatario,
-                isProducao: false // Homologação
+                isProducao: true // Produção
             );
 
             _logger.LogInformation("[WCF] XML construído: {Xml}", xmlEvento.ToString());
