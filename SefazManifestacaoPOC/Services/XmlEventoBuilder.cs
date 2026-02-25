@@ -50,8 +50,8 @@ public class XmlEventoBuilder
                         new XElement(ns + "chNFe", chaveNFe),
                         new XElement(ns + "dhEvento", dhEvento),
                         new XElement(ns + "tpEvento", "210210"), // Manifestação do Destinatário - Ciência da Operação
-                        new XElement(ns + "nSeqEvento", "1"),
-                        new XElement(ns + "verEvento", "1.00"),
+                        new XElement(ns + "nSeqEvento", "1"), // Obrigatório - sequencial do evento
+                        new XElement(ns + "verEvento", "1.00"), // Obrigatório - versão do evento
                         new XElement(ns + "detEvento",
                             new XAttribute("versao", "1.00"),
                             // descEvento SEM namespace (xmlns="") conforme schema NFe
