@@ -27,7 +27,10 @@ public class XmlEventoBuilder
         var tpAmb = isProducao ? 1 : 2; // 1=Produção, 2=Homologação
         // Formato de data SEFAZ: yyyy-MM-ddTHH:mm:ss-03:00 (ISO 8601 com timezone)
         var dhEvento = DateTimeOffset.Now.ToString("yyyy-MM-ddTHH:mm:ssK");
-        var idEvento = $"ID210210{chaveNFe}01";
+        
+        var tpEvento = "210210"; // Confirmação da Operação
+        var descEvento = "Confirmação da Operação"; // Deve corresponder ao tpEvento
+        var idEvento = $"ID{tpEvento}{chaveNFe}01";
         
         // Extrair cUF dos 2 primeiros dígitos da chave (ex: 31 = MG)
         var cOrgao = chaveNFe.Substring(0, 2);
@@ -48,12 +51,13 @@ public class XmlEventoBuilder
                         new XElement(ns + "CNPJ", cnpjDestinatario),
                         new XElement(ns + "chNFe", chaveNFe),
                         new XElement(ns + "dhEvento", dhEvento),
-                        new XElement(ns + "tpEvento", "210210"), // Manifestação do Destinatário - Ciência da Operação
+                        new XElement(ns + "tpEvento", tpEvento),
                         new XElement(ns + "nSeqEvento", "1"),
                         new XElement(ns + "verEvento", "1.00"),
                         new XElement(ns + "detEvento",
                             new XAttribute("versao", "1.00"),
-                            new XElement(ns + "descEvento", "Confirmação da Operação")
+                            // Elemento descEvento SEM namespace (conforme schema da SEFAZ)
+                            new XElement("descEvento", descEvento)
                         )
                     )
                 )
@@ -61,6 +65,50 @@ public class XmlEventoBuilder
         );
 
         return xml;
+    }
+
+    /// <summary>
+    /// Extrai o código da UF dos 2 primeiros dígitos da chave da NFe
+    /// </summary>
+    public static string ExtrairUF(string chaveNFe)
+    {
+        if (string.IsNullOrWhiteSpace(chaveNFe) || chaveNFe.Length < 2)
+            return "DEFAULT";
+
+        var codigoUF = chaveNFe.Substring(0, 2);
+        
+        // Mapeamento de códigos para siglas de UF
+        return codigoUF switch
+        {
+            "11" => "RO",
+            "12" => "AC",
+            "13" => "AM",
+            "14" => "RR",
+            "15" => "PA",
+            "16" => "AP",
+            "17" => "TO",
+            "21" => "MA",
+            "22" => "PI",
+            "23" => "CE",
+            "24" => "RN",
+            "25" => "PB",
+            "26" => "PE",
+            "27" => "AL",
+            "28" => "SE",
+            "29" => "BA",
+            "31" => "MG",
+            "32" => "ES",
+            "33" => "RJ",
+            "35" => "SP",
+            "41" => "PR",
+            "42" => "SC",
+            "43" => "RS",
+            "50" => "MS",
+            "51" => "MT",
+            "52" => "GO",
+            "53" => "DF",
+            _ => "DEFAULT"
+        };
     }
 
     /// <summary>

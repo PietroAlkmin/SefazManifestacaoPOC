@@ -6,7 +6,7 @@ using System.Xml.Linq;
 namespace SefazManifestacaoPOC.Services;
 
 /// <summary>
-/// Cliente para envio de eventos para o serviço NFeRecepcaoEvento4 da SEFAZ
+/// Cliente para envio de eventos para o serviço NFeRecepcaoEvento da SEFAZ
 /// </summary>
 public class SefazEventoClient
 {
@@ -16,13 +16,13 @@ public class SefazEventoClient
     private static readonly Dictionary<string, string> UrlsHomologacao = new()
     {
         // SVRS - Estados que usam Sefaz Virtual do Rio Grande do Sul
-        ["DEFAULT"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
-        ["RS"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
-        ["AC"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
-        ["AL"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
-        ["AP"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["DEFAULT"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
+        ["RS"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
+        ["AC"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
+        ["AL"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
+        ["AP"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
         ["MG"] = "https://hnfe.fazenda.mg.gov.br/nfe2/services/RecepcaoEvento",
-        ["SP"] = "https://homologacao.nfe.fazenda.sp.gov.br/ws/nferecepcaoevento4.asmx"
+        ["SP"] = "https://homologacao.nfe.fazenda.sp.gov.br/ws/nferecepcaoevento.asmx"
     };
 
     public SefazEventoClient(IHttpClientFactory httpClientFactory)
@@ -64,8 +64,8 @@ public class SefazEventoClient
             CharSet = "utf-8"
         };
 
-        // SOAPAction correto para NFeRecepcaoEvento4 (baseado no WSDL oficial)
-        content.Headers.Add("SOAPAction", "\"http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento4/nfeRecepcaoEvento\"");
+        // SOAPAction correto para NFeRecepcaoEvento (baseado no WSDL oficial)
+        content.Headers.Add("SOAPAction", "\"http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento/nfeRecepcaoEvento\"");
 
         var response = await httpClient.PostAsync(url, content);
         
@@ -89,7 +89,7 @@ public class SefazEventoClient
         return $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <soap:Envelope xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
     <soap:Body>
-        <nfeDadosMsg xmlns=""http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento4"">
+        <nfeDadosMsg xmlns=""http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento"">
             {xmlBody}
         </nfeDadosMsg>
     </soap:Body>
@@ -102,7 +102,7 @@ public class SefazEventoClient
         {
             var doc = XDocument.Parse(soapResponse);
             XNamespace soapNs = "http://schemas.xmlsoap.org/soap/envelope/";
-            XNamespace nfeNs = "http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento4";
+            XNamespace nfeNs = "http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento";
 
             var bodyElement = doc.Descendants(soapNs + "Body").FirstOrDefault();
             if (bodyElement != null)

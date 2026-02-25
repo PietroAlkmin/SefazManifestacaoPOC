@@ -84,7 +84,10 @@ public class SefazController : ControllerBase
 
             // 5. Enviar para SEFAZ
             _logger.LogInformation("Enviando para SEFAZ...");
-            var xmlResposta = await _eventoClient.EnviarEventoAsync(xmlAssinado, certificado);
+            // Extrair UF da chave para enviar ao endpoint correto
+            var uf = XmlEventoBuilder.ExtrairUF(request.ChaveNFe);
+            _logger.LogInformation("UF extraída da chave: {UF}", uf);
+            var xmlResposta = await _eventoClient.EnviarEventoAsync(xmlAssinado, certificado, uf);
 
             _logger.LogInformation("Resposta recebida da SEFAZ: {Resposta}", xmlResposta);
 
