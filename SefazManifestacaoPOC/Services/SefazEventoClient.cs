@@ -103,7 +103,6 @@ public class SefazEventoClient
             var doc = XDocument.Parse(soapResponse);
             XNamespace soapNs = "http://schemas.xmlsoap.org/soap/envelope/";
             XNamespace nfeNs = "http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento";
-";
 
             var bodyElement = doc.Descendants(soapNs + "Body").FirstOrDefault();
             if (bodyElement != null)
