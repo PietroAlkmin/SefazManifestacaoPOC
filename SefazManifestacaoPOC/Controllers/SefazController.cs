@@ -151,16 +151,16 @@ public class SefazController : ControllerBase
             if (retEnvEvento != null)
             {
                 // Erro no lote - não processou eventos individuais
-                var cStat = retEnvEvento.Element(ns + "cStat")?.Value;
-                var xMotivo = retEnvEvento.Element(ns + "xMotivo")?.Value;
+                var cStatLote = retEnvEvento.Element(ns + "cStat")?.Value;
+                var xMotivoLote = retEnvEvento.Element(ns + "xMotivo")?.Value;
                 
                 return new ManifestacaoResponse
                 {
                     Success = false,
-                    CStat = cStat,
-                    XMotivo = xMotivo,
+                    CStat = cStatLote,
+                    XMotivo = xMotivoLote,
                     XmlRetorno = xmlResposta,
-                    Erro = $"Erro no lote (cStat={cStat}): {xMotivo}"
+                    Erro = $"Erro no lote (cStat={cStatLote}): {xMotivoLote}"
                 };
             }
 
