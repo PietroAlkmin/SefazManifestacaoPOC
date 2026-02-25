@@ -16,13 +16,13 @@ public class SefazEventoClient
     private static readonly Dictionary<string, string> UrlsHomologacao = new()
     {
         // SVRS - Estados que usam Sefaz Virtual do Rio Grande do Sul
-        ["DEFAULT"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
-        ["RS"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
-        ["AC"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
-        ["AL"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
-        ["AP"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento.asmx",
+        ["DEFAULT"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["RS"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["AC"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["AL"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
+        ["AP"] = "https://nfe-homologacao.svrs.rs.gov.br/ws/recepcaoevento/recepcaoevento4.asmx",
         ["MG"] = "https://hnfe.fazenda.mg.gov.br/nfe2/services/RecepcaoEvento",
-        ["SP"] = "https://homologacao.nfe.fazenda.sp.gov.br/ws/nferecepcaoevento.asmx"
+        ["SP"] = "https://homologacao.nfe.fazenda.sp.gov.br/ws/nferecepcaoevento4.asmx"
     };
 
     public SefazEventoClient(IHttpClientFactory httpClientFactory)
@@ -103,6 +103,7 @@ public class SefazEventoClient
             var doc = XDocument.Parse(soapResponse);
             XNamespace soapNs = "http://schemas.xmlsoap.org/soap/envelope/";
             XNamespace nfeNs = "http://www.portalfiscal.inf.br/nfe/wsdl/NFeRecepcaoEvento";
+";
 
             var bodyElement = doc.Descendants(soapNs + "Body").FirstOrDefault();
             if (bodyElement != null)
