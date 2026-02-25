@@ -259,9 +259,9 @@ public class SefazController : ControllerBase
 
             // 5. Enviar para SEFAZ via WCF
             _logger.LogInformation("[WCF] Enviando para SEFAZ via WCF (System.ServiceModel)...");
-            var uf = XmlEventoBuilder.ExtrairUF(request.ChaveNFe);
-            _logger.LogInformation("[WCF] UF extraída da chave: {UF}", uf);
-            var xmlResposta = await _eventoClientWcf.EnviarEventoAsync(xmlAssinado, certificado, uf);
+            // cOrgao=91 (Ambiente Nacional) sempre usa SVRS, não usa UF da chave
+            _logger.LogInformation("[WCF] Usando SVRS (Ambiente Nacional - cOrgao=91)");
+            var xmlResposta = await _eventoClientWcf.EnviarEventoAsync(xmlAssinado, certificado, "SVRS");
 
             _logger.LogInformation("[WCF] Resposta recebida da SEFAZ: {Resposta}", xmlResposta);
 
